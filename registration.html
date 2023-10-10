@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
+    <title>Registration</title>
+</head>
+<body>
+    <form action="" id="formData">
+        <div>
+            <label for="username" >Username</label>
+            <input type="text" id="username">
+        </div>
+        <div>
+            <label for="password">Password</label>
+            <input type="text" id="password">
+        </div>
+        <div>
+            <label for="email"> Email</label>
+            <input type="text" id="email">
+        </div>
+        <div>
+            <label for="phoneNum"> Phone Number</label>
+            <input type="text" id="phoneNum">
+        </div>
+        <button type="submit">Sign up</button>
+    </form>
+</body>
+
+<script type="module">
+   // Import the functions you need from the SDKs you need
+   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-app.js";
+  import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-analytics.js";
+  import { getDatabase , ref, set } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-database.js";
+  import { getAuth, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-auth.js";
+
+  // TODO: Add SDKs for Firebase products that you want to use
+  // https://firebase.google.com/docs/web/setup#available-libraries
+
+  // Your web app's Firebase configuration
+  // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+  const firebaseConfig = {
+    apiKey: "AIzaSyCdFFfux9ed00Ft2-H8Jb1LX-9_eoNNvuM",
+    authDomain: "registration-916c5.firebaseapp.com",
+    databaseURL: "https://registration-916c5-default-rtdb.firebaseio.com",
+    projectId: "registration-916c5",
+    storageBucket: "registration-916c5.appspot.com",
+    messagingSenderId: "520560266099",
+    appId: "1:520560266099:web:6666b3e834bc5e328c5306",
+    measurementId: "G-C4F8G28420"
+  };
+
+  // Initialize Firebase
+  const app = initializeApp(firebaseConfig);
+  const analytics = getAnalytics(app);
+  const database = getDatabase(app);
+  const auth = getAuth();
+
+  //form submit 
+  var form=document.getElementById("formData");
+
+  form.addEventListener('submit',function(e){
+    e.preventDefault();
+  var username=document.getElementById('username').value;
+  var password=document.getElementById('password').value;
+  var email=document.getElementById('email').value;
+  var phoneNum=document.getElementById('phoneNum').value;
+   
+
+      // Validate username (no spaces)
+      if (/\s/.test(username)) {
+        alert('Username should not contain spaces.');
+        return;
+    }
+
+    // Validate password (at least 8 characters, 1 number, 1 uppercase, and special characters)
+    if (
+        password.length < 8 ||
+        !/[0-9]/.test(password) ||
+        !/[A-Z]/.test(password) ||
+        !/[!@#$%^&*]/.test(password)
+    ) {
+        alert('Password must be at least 8 characters and contain 1 number, 1 uppercase letter, and special characters.');
+        return;
+    }
+
+    // Validate email (basic email format)
+    if (!/\S+@\S+\.\S+/.test(email)) {
+        alert('Invalid email format.');
+        return;
+    }
+
+    // Validate phone number (10 digits starting with 07)
+    if (!/^[0-9]{10}$/.test(phoneNum) || !phoneNum.startsWith('07')) {
+        alert('Phone number should be 10 digits and start with "07".');
+        return;
+    }
+    createUserWithEmailAndPassword(auth, email ,password  )
+    .then((userCredential) => {
+      // Signed up 
+      const user = userCredential.user;
+      //add the username, email and phone number to firebase and don't add the password
+      const userData={
+        username:username,
+        email:email,
+        phoneN:phoneNum
+      }
+        // Assuming you have a "users" collection in your database
+        const userRef = ref(database, 'users/' + user.uid);
+
+        // Set the user data in the database
+        set(userRef, userData)
+      alert('User created :)');
+      // ...
+    })
+    .catch((error) => {
+      const errorCode = error.code;
+      const errorMessage = error.message;
+      alert(errorMessage);
+
+      // ..
+    });
+  })
+  </script>
+</html>
